@@ -1,0 +1,16 @@
+.console {
+    height: 100%;
+    width: 100%;
+    background: black;
+    color: white;
+    overflow-wrap: anywhere;
+}
+
+.user-input {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.cursor {
+    padding-left: 1px;
+}

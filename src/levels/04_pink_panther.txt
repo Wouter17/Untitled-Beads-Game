@@ -1,0 +1,15 @@
+g 60992D
+b 3772FF
+y F5B841
+r DB2B39
+p EF709D
+
+ppppppp
+ggggggg
+
+g > r
+rgg > pyr
+ypy > bpb
+brg > ppp
+gpb > ppp
+.

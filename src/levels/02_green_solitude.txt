@@ -1,0 +1,12 @@
+r DF2935
+b 3772FF
+g 1A936F
+
+rbgbr
+rgb
+
+rgb > rrgb
+rrg > rgb
+rrr > b
+bbb > r
+.
