@@ -48,8 +48,8 @@ function Shell() {
             setShellText(prevState => prevState.length > 0 ? prevState.slice(0, -1) : prevState);
         } else if (event.code === 'Tab') {
             event.preventDefault();
-            if (shellText.startsWith('./game ')) {
-                const argument = shellText.match(/(?<=^.\/game\s+).+/)?.[0];
+            if (shellText.startsWith('./game ') || shellText.startsWith('game ')) {
+                const argument = shellText.match(/(?<=^(.\/)?game\s+).+/)?.[0];
                 if (argument === undefined) return;
                 let possibilities = files.slice(0, levelsCompleted + 1);
                 possibilities = possibilities.filter(value => value.startsWith(argument));
@@ -74,14 +74,14 @@ function Shell() {
 
         } else if (event.code === 'Enter') {
             addPreviousCommand(shellText);
-            if (shellText.trim() === './game new') {
+            if (shellText.trim() === './game new' || shellText.trim() === 'game new') {
                 if (levelsCompleted === 0) {
                     setLevelsCompleted(1);
                 }
                 replyCommand('Done!');
                 return;
             }
-            if (shellText.startsWith('./game ') && !shellText.endsWith('help')) {
+            if ((shellText.startsWith('./game ') || shellText.startsWith('game ')) && !shellText.endsWith('help')) {
                 const match = shellText.match(/[\w+./]+/gm)?.[1];
                 if (match === undefined) return;
                 if (!(match in levels) || !files.slice(0, levelsCompleted + 1).concat(customFiles).includes(match)) {
@@ -125,14 +125,14 @@ function Shell() {
             }
         }
 
-        if (text === './game') {
+        if (text === './game' || text === 'game') {
             return ['Usage:',
                 '   game help                   - Show a big help message',
                 '   game new                    - Create the first level',
                 '   game [path_to_level]        - Play a level'];
         }
 
-        if (text === './game help') {
+        if (text === './game help' || text === 'game help') {
             return ['What is this?',
                 '   This is a level based puzzle game about mutating a chain of coloured beads using rules.',
                 '   Each level has a goal chain, a starting chain, and a set of operations.',

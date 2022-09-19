@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import Circle from './Circle';
 
 interface gameObject {
@@ -13,6 +13,8 @@ type gameInput = {
     onComplete: () => void
 }
 
+type GameStatus = false | 'closed' | 'completed';
+
 function Game({level, onComplete}: gameInput) {
     const [gameObject, setGameObject] = useState<gameObject>({
         colors: new Map(),
@@ -23,7 +25,7 @@ function Game({level, onComplete}: gameInput) {
     const [topCursor, setTopCursor] = useState(0);
     const [botCursor, setBotCursor] = useState(0);
     const [operations, setOperations] = useState(0);
-    const [complete, setComplete] = useState(false);
+    const [gameStatus, setGameStatus] = useState<GameStatus>(false);
 
     useEffect(() => {
         if (level !== undefined) {
@@ -46,25 +48,27 @@ function Game({level, onComplete}: gameInput) {
             }
             setGameObject({colors, target, current, transformations});
             setOperations(0);
-            setComplete(false);
+            setGameStatus(false);
         }
     }, [level]);
 
     useEffect(() => {
         if (compareArray(gameObject.current, gameObject.target) && gameObject.transformations.size > 0) {
-            setComplete(true);
-        } else setComplete(false);
+            setGameStatus('completed');
+        } else {
+            setGameStatus(false);
+        }
     }, [gameObject, level, operations]);
 
     useEffect(() => {
-        if (complete) {
+        if (gameStatus === 'completed') {
             onComplete();
         }
 
-    }, [complete]);
+    }, [gameStatus]);
 
-    const handleKey = (event: KeyboardEvent) => {
-        if (!(gameObject.transformations.size > 0) || complete) return;
+    const handleKey = useCallback((event: KeyboardEvent) => {
+        if (!(gameObject.transformations.size > 0) || gameStatus) return;
         if (event.code === 'ArrowUp') {
             if (botCursor <= 0) return;
             setBotCursor(prevState => prevState - 1);
@@ -77,9 +81,12 @@ function Game({level, onComplete}: gameInput) {
         } else if (event.code === 'ArrowRight') {
             if (topCursor + 1 >= gameObject.current.length) return;
             setTopCursor(prevState => prevState + 1);
+        } else if (event.key === 'q') {
+            setGameStatus('closed');
         } else if (event.code === 'Enter' || event.code === 'Space') {
             const transformArray = [...gameObject.transformations.keys()][botCursor];
-            if (gameObject.current.length - transformArray.length - topCursor >= 0 && compareArray(gameObject.current.slice(topCursor, topCursor + transformArray.length), transformArray)) {
+            if (gameObject.current.length - transformArray.length - topCursor >= 0
+                && compareArray(gameObject.current.slice(topCursor, topCursor + transformArray.length), transformArray)) {
                 setOperations(prevState => prevState + 1);
                 setGameObject(prevState => {
                     const current = [...prevState.current];
@@ -90,7 +97,7 @@ function Game({level, onComplete}: gameInput) {
                 );
             }
         }
-    };
+    }, [gameObject, gameStatus, topCursor, botCursor]);
 
     useEffect(() => {
         document.addEventListener('keydown', handleKey, false);
@@ -104,7 +111,7 @@ function Game({level, onComplete}: gameInput) {
                     <>
                     </>
                     :
-                    complete ?
+                    gameStatus === 'completed' ?
                         <>
                             <span>You solved the level in [{operations}] operations!</span><br/>
                             <span style={{fontSize: 'xx-large'}}>
@@ -131,13 +138,11 @@ function Game({level, onComplete}: gameInput) {
                         
                             <span style={{fontSize: 'xxx-large'}}>
                                 {[...gameObject.transformations.keys()].map((key, index) => <>
-                                    <span style={{
-                                        transform: 'rotate(90deg)',
-                                        display: 'inline-flex'
-                                    }}>{index === botCursor ? '⮝' : <Circle color="000000"/>}</span>
+                                    <span>{index === botCursor ? '⮞' :
+                                        <span style={{visibility: 'hidden'}}>⮞</span>}</span>
                                     <span>{key.map((value, index) => <Circle key={index}
                                         color={gameObject.colors.get(value)}/>)}</span>
-                                    <span>🠖</span>
+                                    <span>⇒</span>
                                     <span>{gameObject.transformations.get(key)?.map(value => <Circle
                                         key={index}
                                         color={gameObject.colors.get(value)}/>)}</span><br/>

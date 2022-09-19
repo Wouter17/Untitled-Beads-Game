@@ -9,6 +9,5 @@ rbbgy
 rgy>rg
 bg>gy
 rg>rrg
-
 rr>b
 .
